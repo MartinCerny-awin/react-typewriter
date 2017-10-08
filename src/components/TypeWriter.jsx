@@ -1,5 +1,5 @@
-import React from 'react';
-import {styleComponentSubstring, componentTokenAt} from '../utils';
+import React from "react";
+import { styleComponentSubstring, componentTokenAt } from "../utils";
 
 /**
  * TypeWriter
@@ -41,22 +41,18 @@ class TypeWriter extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { children } = this.props;
     const nextChildren = nextProps.children;
-    const childrenAreStrings = typeof children === 'string' && typeof nextChildren === 'string';
+    const childrenAreStrings =
+      typeof children === "string" && typeof nextChildren === "string";
     // TODO Implement childrenChanged for non-string children as well
     const childrenChanged = childrenAreStrings && children !== nextChildren;
-    const visibleCharsChanged = this.state.visibleChars !== nextState.visibleChars;
+    const visibleCharsChanged =
+      this.state.visibleChars !== nextState.visibleChars;
 
-    return (visibleCharsChanged || childrenChanged);
+    return visibleCharsChanged || childrenChanged;
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {
-      maxDelay,
-      minDelay,
-      delayMap,
-      onTypingEnd,
-      onTyped
-    } = this.props;
+    const { maxDelay, minDelay, delayMap, onTypingEnd, onTyped } = this.props;
     const token = componentTokenAt(this, prevState.visibleChars);
     const nextToken = componentTokenAt(this, this.state.visibleChars);
 
@@ -66,14 +62,18 @@ class TypeWriter extends React.Component {
 
     // check the delay map for additional delays at the index.
     if (nextToken) {
-      const tokenIsString = (typeof token === 'string');
-      let timeout = Math.round(Math.random() * (maxDelay - minDelay) + minDelay);
+      const tokenIsString = typeof token === "string";
+      let timeout = Math.round(
+        Math.random() * (maxDelay - minDelay) + minDelay
+      );
 
       if (delayMap) {
         for (let i = 0; i < delayMap.length; i++) {
           let mapping = delayMap[i];
-          if ((mapping.at === prevState.visibleChars) ||
-              (tokenIsString && token.match(mapping.at))) {
+          if (
+            mapping.at === prevState.visibleChars ||
+            (tokenIsString && token.match(mapping.at))
+          ) {
             timeout += mapping.delay;
             break;
           }
@@ -96,20 +96,24 @@ class TypeWriter extends React.Component {
     const {
       children,
       fixed,
+      typing,
+      initDelay,
+      minDelay,
+      maxDelay,
+      onTypingEnd,
+      onTyped,
       ...props
     } = this.props;
-    const {
-      visibleChars
-    } = this.state;
+    const { visibleChars } = this.state;
     const container = <span {...props}>{children}</span>;
-    const hideStyle = fixed ? {visibility: 'hidden'} : {display: 'none'};
+    const hideStyle = fixed ? { visibility: "hidden" } : { display: "none" };
 
     return styleComponentSubstring(container, hideStyle, visibleChars);
   }
 
   _handleTimeout() {
-    const {typing} = this.props;
-    const {visibleChars} = this.state;
+    const { typing } = this.props;
+    const { visibleChars } = this.state;
 
     this.setState({
       visibleChars: visibleChars + typing
@@ -119,19 +123,21 @@ class TypeWriter extends React.Component {
 
 TypeWriter.propTypes = {
   fixed: React.PropTypes.bool,
-  delayMap: React.PropTypes.arrayOf(React.PropTypes.shape({
-    at: React.PropTypes.oneOfType([
-      React.PropTypes.string,
-      React.PropTypes.number,
-      React.PropTypes.instanceOf(RegExp)
-    ]),
-    delay: React.PropTypes.number
-  })),
+  delayMap: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      at: React.PropTypes.oneOfType([
+        React.PropTypes.string,
+        React.PropTypes.number,
+        React.PropTypes.instanceOf(RegExp)
+      ]),
+      delay: React.PropTypes.number
+    })
+  ),
   typing(props, propName) {
     const prop = props[propName];
 
     if (!(Number(prop) === prop && prop % 1 === 0) || (prop < -1 || prop > 1)) {
-      return new Error('typing property must be an integer between 1 and -1');
+      return new Error("typing property must be an integer between 1 and -1");
     }
   },
   maxDelay: React.PropTypes.number,
